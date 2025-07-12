@@ -47,11 +47,17 @@ In your Render service settings, add these environment variables:
 - `RAILS_ENV`: `production`
 - `RAILS_SERVE_STATIC_FILES`: `true`
 - `RAILS_LOG_TO_STDOUT`: `true`
+- `SECRET_KEY_BASE`: A secure random string (Render will generate this automatically if using render.yaml)
 
 ### Optional Variables:
 - `RAILS_LOG_LEVEL`: `info` (or `debug` for more verbose logging)
 - `WEB_CONCURRENCY`: `2` (number of Puma workers)
 - `RAILS_MAX_THREADS`: `5` (database connection pool size)
+
+### Generating SECRET_KEY_BASE (if needed manually):
+```bash
+rails secret
+```
 
 ## Step 4: Database Setup
 
@@ -85,6 +91,7 @@ The database will be created automatically.
    - Check that all gems are properly specified in Gemfile
    - Ensure `bin/render-build.sh` is executable
    - Verify the application doesn't require encrypted credentials
+   - Make sure `SECRET_KEY_BASE` is set
 
 2. **Database Connection Issues**:
    - Ensure `DATABASE_URL` is set correctly
@@ -123,6 +130,7 @@ The database will be created automatically.
 2. **HTTPS**: Render provides SSL certificates automatically
 3. **Database**: Use strong passwords and limit access
 4. **Logs**: Be careful not to log sensitive information
+5. **Secret Key Base**: Keep this secure and don't expose it in logs
 
 ## Scaling
 
