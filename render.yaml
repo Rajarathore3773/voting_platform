@@ -4,12 +4,20 @@ services:
     env: ruby
     plan: free
     buildCommand: "./bin/render-build.sh"
-    startCommand: "bundle exec puma -C config/puma.rb"
+    startCommand: "./bin/start.sh"
     envVars:
       - key: DATABASE_URL
-        fromDatabase:
-          name: voting-platform-db
-          property: connectionString
+        value: postgresql://voting_platform_db_user:UDcpBe2x8uXAXiXIdalEZXCzKinuLQz3@dpg-d1ouuo7fte5s73bot940-a/voting_platform_db
+      - key: DATABASE_NAME
+        value: voting_platform_db
+      - key: DATABASE_USERNAME
+        value: voting_platform_db_user
+      - key: DATABASE_PASSWORD
+        value: UDcpBe2x8uXAXiXIdalEZXCzKinuLQz3
+      - key: DATABASE_HOST
+        value: dpg-d1ouuo7fte5s73bot940-a
+      - key: DATABASE_PORT
+        value: 5432
       - key: RAILS_ENV
         value: production
       - key: RAILS_SERVE_STATIC_FILES
@@ -18,10 +26,4 @@ services:
         value: true
       - key: SECRET_KEY_BASE
         generateValue: true
-        sync: false
-
-databases:
-  - name: voting-platform-db
-    databaseName: voting_platform_production
-    user: voting_platform_user
-    plan: free 
+        sync: false 

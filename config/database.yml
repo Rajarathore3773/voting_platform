@@ -80,3 +80,9 @@ test:
 production:
   <<: *default
   url: <%= ENV['DATABASE_URL'] %>
+  # Fallback configuration for Render PostgreSQL
+  database: <%= ENV.fetch('DATABASE_NAME', 'voting_platform_db') %>
+  username: <%= ENV.fetch('DATABASE_USERNAME', 'voting_platform_db_user') %>
+  password: <%= ENV.fetch('DATABASE_PASSWORD', 'UDcpBe2x8uXAXiXIdalEZXCzKinuLQz3') %>
+  host: <%= ENV.fetch('DATABASE_HOST', 'dpg-d1ouuo7fte5s73bot940-a') %>
+  port: <%= ENV.fetch('DATABASE_PORT', '5432') %>

@@ -9,9 +9,9 @@ echo "Using SECRET_KEY_BASE: ${SECRET_KEY_BASE:0:20}..."
 
 bundle install
 
-# Precompile assets
+# Precompile assets only (no database operations during build)
+echo "Precompiling assets..."
 bundle exec rake assets:precompile
 bundle exec rake assets:clean
 
-# Run database migrations
-bundle exec rake db:migrate 
+echo "Build completed successfully!" 
