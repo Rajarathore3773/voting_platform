@@ -6,21 +6,10 @@ This guide will help you deploy the Voting Platform to Render.
 
 1. A Render account (free tier available)
 2. Your Rails application code in a Git repository (GitHub, GitLab, etc.)
-3. Rails master key for production credentials
 
 ## Step 1: Prepare Your Application
 
-### 1.1 Get Your Rails Master Key
-
-Your Rails master key is required for production deployment. It's located in `config/master.key` (this file should NOT be committed to Git).
-
-If you don't have it, you can generate a new one:
-
-```bash
-rails credentials:edit
-```
-
-### 1.2 Commit Your Changes
+### 1.1 Commit Your Changes
 
 Make sure all your changes are committed to your Git repository:
 
@@ -55,7 +44,6 @@ git push origin main
 In your Render service settings, add these environment variables:
 
 ### Required Variables:
-- `RAILS_MASTER_KEY`: Your Rails master key (from `config/master.key`)
 - `RAILS_ENV`: `production`
 - `RAILS_SERVE_STATIC_FILES`: `true`
 - `RAILS_LOG_TO_STDOUT`: `true`
@@ -96,7 +84,7 @@ The database will be created automatically.
 1. **Build Failures**:
    - Check that all gems are properly specified in Gemfile
    - Ensure `bin/render-build.sh` is executable
-   - Verify Rails master key is set correctly
+   - Verify the application doesn't require encrypted credentials
 
 2. **Database Connection Issues**:
    - Ensure `DATABASE_URL` is set correctly
