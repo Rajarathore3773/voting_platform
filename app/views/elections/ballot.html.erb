@@ -40,18 +40,6 @@
     opacity: 0.8;
     transform: rotate(2deg);
   }
-  .candidate-item.sortable-ghost {
-    opacity: 0.3;
-    background: #e0e0e0;
-  }
-  .candidate-item.sortable-chosen {
-    background: #d4edda;
-    border-color: #28a745;
-  }
-  .candidate-item.sortable-drag {
-    background: #fff3cd;
-    border-color: #ffc107;
-  }
   .candidate-item span:last-child {
     margin-left: 1rem;
     color: #888;
@@ -91,15 +79,6 @@
     text-align: center;
     color: #6c757d;
   }
-  .debug-info {
-    background: #f8f9fa;
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    font-family: monospace;
-    font-size: 0.9rem;
-  }
 </style>
 
 <div class="ballot-container">
@@ -110,18 +89,10 @@
     <p><small>💡 Click on a candidate to move it to the top if drag and drop doesn't work</small></p>
   </div>
 
-  <div class="debug-info">
-    <p><strong>Debug Info:</strong></p>
-    <p>Stimulus Available: <span id="stimulus-status">Checking...</span></p>
-    <p>Sortable Available: <span id="sortable-status">Checking...</span></p>
-    <p>Controller Connected: <span id="controller-status">Checking...</span></p>
-    <button onclick="testJavaScript()" style="margin-top: 10px; padding: 5px 10px;">Test JavaScript</button>
-  </div>
-
   <%= form_with url: submit_ballot_election_path(@election), method: :post, local: true, id: 'ballot-form', data: { turbo: false } do %>
-    <ul data-controller="sortable" data-sortable-target="list" id="candidates-list">
+    <ul id="candidates-list">
       <% @candidates.each do |candidate| %>
-        <li data-id="<%= candidate.id %>" class="candidate-item">
+        <li data-id="<%= candidate.id %>" class="candidate-item" draggable="true">
           <span style="flex:1;"><%= candidate.name %></span>
           <input type="hidden" name="rankings[]" value="<%= candidate.id %>">
           <span>&#x2630;</span>
@@ -135,84 +106,101 @@
 </div>
 
 <script>
-  // Debug script to check if everything is loaded
-  document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded');
+document.addEventListener('DOMContentLoaded', function() {
+  const list = document.getElementById('candidates-list');
+  const items = list.querySelectorAll('.candidate-item');
+  
+  // Simple drag and drop implementation
+  let draggedItem = null;
+  
+  items.forEach(item => {
+    // Drag events
+    item.addEventListener('dragstart', function(e) {
+      draggedItem = this;
+      this.classList.add('dragging');
+    });
     
-    // Check Stimulus
-    if (window.Stimulus) {
-      document.getElementById('stimulus-status').textContent = 'Yes';
-      console.log('Stimulus available');
-    } else {
-      document.getElementById('stimulus-status').textContent = 'No';
-      console.error('Stimulus not available');
-    }
+    item.addEventListener('dragend', function(e) {
+      this.classList.remove('dragging');
+      updateInputs();
+    });
     
-    // Check Sortable
-    setTimeout(() => {
-      if (window.Sortable) {
-        document.getElementById('sortable-status').textContent = 'Yes';
-        console.log('Sortable available globally');
-      } else {
-        document.getElementById('sortable-status').textContent = 'No';
-        console.error('Sortable not available globally');
+    // Click fallback
+    item.addEventListener('click', function(e) {
+      if (e.target.tagName !== 'INPUT') {
+        moveToTop(this);
       }
-    }, 1000);
-    
-    // Check controller connection
-    setTimeout(() => {
-      const list = document.getElementById('candidates-list');
-      if (list && list.hasAttribute('data-controller')) {
-        document.getElementById('controller-status').textContent = 'Yes';
-        console.log('Controller attribute found');
-        
-        // Check if Stimulus controller is actually connected
-        if (window.Stimulus) {
-          const controller = window.Stimulus.getControllerForElementAndIdentifier(list, 'sortable');
-          if (controller) {
-            console.log('Stimulus controller is connected');
-          } else {
-            console.error('Stimulus controller not connected');
-          }
-        }
+    });
+  });
+  
+  // Drop zone events
+  list.addEventListener('dragover', function(e) {
+    e.preventDefault();
+  });
+  
+  list.addEventListener('drop', function(e) {
+    e.preventDefault();
+    if (draggedItem) {
+      const afterElement = getDragAfterElement(this, e.clientY);
+      if (afterElement == null) {
+        this.appendChild(draggedItem);
       } else {
-        document.getElementById('controller-status').textContent = 'No';
-        console.error('Controller attribute not found');
+        this.insertBefore(draggedItem, afterElement);
       }
-    }, 500);
-    
-    // Handle form submission with loading state
-    const form = document.getElementById('ballot-form');
-    const submitBtn = document.getElementById('submit-ballot');
-    
-    if (form && submitBtn) {
-      form.addEventListener('submit', function() {
-        submitBtn.disabled = true;
-        submitBtn.value = 'Submitting...';
-        form.classList.add('loading');
-      });
     }
   });
   
-  function testJavaScript() {
-    alert('JavaScript is working!');
-    console.log('JavaScript test function called');
+  function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.candidate-item:not(.dragging)')];
     
-    // Test if we can access the list
-    const list = document.getElementById('candidates-list');
-    if (list) {
-      console.log('Found candidates list with', list.children.length, 'items');
+    return draggableElements.reduce((closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
       
-      // Test manual reordering
-      const items = list.querySelectorAll('.candidate-item');
-      if (items.length > 1) {
-        const firstItem = items[0];
-        const secondItem = items[1];
-        list.insertBefore(secondItem, firstItem);
-        console.log('Manually reordered items');
+      if (offset < 0 && offset > closest.offset) {
+        return { offset: offset, element: child };
+      } else {
+        return closest;
       }
-    } else {
-      console.error('Could not find candidates list');
+    }, { offset: Number.NEGATIVE_INFINITY }).element;
+  }
+  
+  function moveToTop(item) {
+    const firstItem = list.querySelector('.candidate-item');
+    if (firstItem !== item) {
+      list.insertBefore(item, firstItem);
+      updateInputs();
     }
   }
+  
+  function updateInputs() {
+    const form = list.closest('form');
+    if (!form) return;
+    
+    // Remove existing inputs
+    form.querySelectorAll('input[name="rankings[]"]').forEach(input => input.remove());
+    
+    // Add new inputs in order
+    list.querySelectorAll('.candidate-item').forEach(item => {
+      const candidateId = item.getAttribute('data-id');
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'rankings[]';
+      input.value = candidateId;
+      form.appendChild(input);
+    });
+  }
+  
+  // Form submission
+  const form = document.getElementById('ballot-form');
+  const submitBtn = document.getElementById('submit-ballot');
+  
+  if (form && submitBtn) {
+    form.addEventListener('submit', function() {
+      submitBtn.disabled = true;
+      submitBtn.value = 'Submitting...';
+      form.classList.add('loading');
+    });
+  }
+});
 </script>

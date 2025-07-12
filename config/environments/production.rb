@@ -20,7 +20,7 @@ Rails.application.configure do
   # config.require_master_key = true
 
   # Enable serving static files from `public/` for Render deployment
-  config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
+  config.public_file_server.enabled = true
 
   # Compress CSS using a preprocessor.
   # config.assets.css_compressor = :sass
