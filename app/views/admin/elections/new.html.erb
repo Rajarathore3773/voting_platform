@@ -1,0 +1,38 @@
+<h1>Create New Election</h1>
+
+<%= form_with model: @election, url: admin_elections_path, local: true do |form| %>
+  <% if @election.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(@election.errors.count, "error") %> prohibited this election from being saved:</h2>
+      <ul>
+        <% @election.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :title %><br>
+    <%= form.text_field :title, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :description %><br>
+    <%= form.text_area :description, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :start_time %><br>
+    <%= form.datetime_select :start_time, required: true %>
+  </div>
+
+  <div class="field">
+    <%= form.label :end_time %><br>
+    <%= form.datetime_select :end_time, required: true %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit "Create Election" %>
+  </div>
+<% end %>

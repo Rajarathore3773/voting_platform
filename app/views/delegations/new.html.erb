@@ -1,0 +1,12 @@
+<h1>Select a Delegate for <%= @election.title %></h1>
+
+<%= form_with model: @delegation, url: delegations_path, local: true do |form| %>
+  <%= form.hidden_field :election_id, value: @election.id %>
+  <div class="field">
+    <%= form.label :delegate_id, "Choose a delegate:" %><br>
+    <%= form.select :delegate_id, @users.map { |u| [u.email, u.id] }, prompt: 'Select a user' %>
+  </div>
+  <div class="actions">
+    <%= form.submit "Set Delegate" %>
+  </div>
+<% end %>

@@ -1,0 +1,12 @@
+<h1>Add Candidate to <%= @election.title %></h1>
+
+<%= form_with model: @candidate, url: admin_candidates_path, local: true do |form| %>
+  <%= form.hidden_field :election_id, value: @election.id %>
+  <div class="field">
+    <%= form.label :name, "Candidate Name" %><br>
+    <%= form.text_field :name, required: true %>
+  </div>
+  <div class="actions">
+    <%= form.submit "Add Candidate" %>
+  </div>
+<% end %>

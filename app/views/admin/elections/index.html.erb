@@ -1,0 +1,35 @@
+<h1>Election Dashboard</h1>
+
+<div class="actions" style="margin-bottom: 2rem;">
+  <%= link_to 'Create New Election', new_admin_election_path, class: 'button' %>
+</div>
+
+<table style="width:100%; border-collapse:collapse;">
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Description</th>
+      <th>Start Time</th>
+      <th>End Time</th>
+      <th>Created At</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @elections.each do |election| %>
+      <tr style="border-bottom:1px solid #eee;">
+        <td><%= election.title %></td>
+        <td><%= election.description %></td>
+        <td><%= election.start_time %></td>
+        <td><%= election.end_time %></td>
+        <td><%= election.created_at %></td>
+        <td>
+          <%= link_to 'Add Candidate', new_admin_candidate_path(election_id: election.id), class: 'button' %>
+          <%= link_to 'View Candidates', admin_election_path(election), class: 'button' %>
+          <%= link_to 'Edit', edit_admin_election_path(election), class: 'button' %>
+          <%= button_to 'Delete', admin_election_path(election), method: :delete, data: { confirm: 'Are you sure?' }, class: 'button', form_class: 'inline' %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

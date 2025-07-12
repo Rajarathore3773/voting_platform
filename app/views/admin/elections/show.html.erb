@@ -1,0 +1,22 @@
+<h1><%= @election.title %></h1>
+<p><strong>Description:</strong> <%= @election.description %></p>
+<p><strong>Start Time:</strong> <%= @election.start_time %></p>
+<p><strong>End Time:</strong> <%= @election.end_time %></p>
+
+<h2>Candidates</h2>
+<table style="width:100%; border-collapse:collapse;">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Created At</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @candidates.each do |candidate| %>
+      <tr style="border-bottom:1px solid #eee;">
+        <td><%= candidate.name %></td>
+        <td><%= candidate.created_at %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table> 

@@ -1,0 +1,11 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  election: one
+  delegator_id: 1
+  delegate_id: 1
+
+two:
+  election: two
+  delegator_id: 1
+  delegate_id: 1

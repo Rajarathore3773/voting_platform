@@ -1,0 +1,73 @@
+<style>
+  .success-container {
+    max-width: 500px;
+    margin: 3rem auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 2rem;
+    text-align: center;
+  }
+  .success-icon {
+    font-size: 4rem;
+    color: #28a745;
+    margin-bottom: 1rem;
+  }
+  .success-container h1 {
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  .success-container p {
+    color: #666;
+    margin-bottom: 2rem;
+  }
+  .actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.7rem 1.5rem;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: #007bff;
+    color: #fff;
+  }
+  .btn-primary:hover {
+    background: #0056b3;
+  }
+  .btn-secondary {
+    background: #6c757d;
+    color: #fff;
+  }
+  .btn-secondary:hover {
+    background: #545b62;
+  }
+  .btn-success {
+    background: #28a745;
+    color: #fff;
+  }
+  .btn-success:hover {
+    background: #1e7e34;
+  }
+</style>
+
+<div class="success-container">
+  <div class="success-icon">✅</div>
+  <h1>Vote Submitted Successfully!</h1>
+  <p>Your ranked choice ballot for <strong><%= @election.title %></strong> has been recorded.</p>
+  
+  <div class="actions">
+    <%= link_to "View Results", results_election_path(@election), class: "btn btn-success" %>
+    <%= link_to "Vote in Another Election", root_path, class: "btn btn-primary" %>
+    <%= link_to "Back to Home", root_path, class: "btn btn-secondary" %>
+  </div>
+</div> 

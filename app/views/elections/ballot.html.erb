@@ -1,0 +1,218 @@
+<style>
+  .ballot-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    padding: 2rem;
+  }
+  .ballot-container h1, .ballot-container p {
+    text-align: center;
+    color: #333;
+  }
+  #candidates-list {
+    margin: 2rem 0 1rem 0;
+    padding: 0;
+    list-style: none;
+  }
+  .candidate-item {
+    padding: 0.7rem 1rem;
+    background: #f7f7f7;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 0.7rem;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+  .candidate-item:hover {
+    background: #e6f0ff;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.08);
+    transform: translateY(-1px);
+  }
+  .candidate-item:active {
+    cursor: grabbing;
+  }
+  .candidate-item.dragging {
+    opacity: 0.8;
+    transform: rotate(2deg);
+  }
+  .candidate-item.sortable-ghost {
+    opacity: 0.3;
+    background: #e0e0e0;
+  }
+  .candidate-item.sortable-chosen {
+    background: #d4edda;
+    border-color: #28a745;
+  }
+  .candidate-item.sortable-drag {
+    background: #fff3cd;
+    border-color: #ffc107;
+  }
+  .candidate-item span:last-child {
+    margin-left: 1rem;
+    color: #888;
+    font-size: 1.2em;
+  }
+  .actions {
+    text-align: center;
+    margin-top: 2rem;
+  }
+  .actions input[type="submit"] {
+    background: #007bff;
+    color: #fff;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .actions input[type="submit"]:hover {
+    background: #0056b3;
+  }
+  .actions input[type="submit"]:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+  }
+  .loading {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  .drag-instructions {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    color: #6c757d;
+  }
+  .debug-info {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    font-family: monospace;
+    font-size: 0.9rem;
+  }
+</style>
+
+<div class="ballot-container">
+  <h1>Ranked Choice Ballot for <%= @election.title %></h1>
+
+  <div class="drag-instructions">
+    <p><strong>Instructions:</strong> Drag and drop the candidates to rank them in your order of preference (top = most preferred)</p>
+    <p><small>💡 Click on a candidate to move it to the top if drag and drop doesn't work</small></p>
+  </div>
+
+  <div class="debug-info">
+    <p><strong>Debug Info:</strong></p>
+    <p>Stimulus Available: <span id="stimulus-status">Checking...</span></p>
+    <p>Sortable Available: <span id="sortable-status">Checking...</span></p>
+    <p>Controller Connected: <span id="controller-status">Checking...</span></p>
+    <button onclick="testJavaScript()" style="margin-top: 10px; padding: 5px 10px;">Test JavaScript</button>
+  </div>
+
+  <%= form_with url: submit_ballot_election_path(@election), method: :post, local: true, id: 'ballot-form', data: { turbo: false } do %>
+    <ul data-controller="sortable" data-sortable-target="list" id="candidates-list">
+      <% @candidates.each do |candidate| %>
+        <li data-id="<%= candidate.id %>" class="candidate-item">
+          <span style="flex:1;"><%= candidate.name %></span>
+          <input type="hidden" name="rankings[]" value="<%= candidate.id %>">
+          <span>&#x2630;</span>
+        </li>
+      <% end %>
+    </ul>
+    <div class="actions">
+      <%= submit_tag "Submit Ballot", id: "submit-ballot" %>
+    </div>
+  <% end %>
+</div>
+
+<script>
+  // Debug script to check if everything is loaded
+  document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM loaded');
+    
+    // Check Stimulus
+    if (window.Stimulus) {
+      document.getElementById('stimulus-status').textContent = 'Yes';
+      console.log('Stimulus available');
+    } else {
+      document.getElementById('stimulus-status').textContent = 'No';
+      console.error('Stimulus not available');
+    }
+    
+    // Check Sortable
+    setTimeout(() => {
+      if (window.Sortable) {
+        document.getElementById('sortable-status').textContent = 'Yes';
+        console.log('Sortable available globally');
+      } else {
+        document.getElementById('sortable-status').textContent = 'No';
+        console.error('Sortable not available globally');
+      }
+    }, 1000);
+    
+    // Check controller connection
+    setTimeout(() => {
+      const list = document.getElementById('candidates-list');
+      if (list && list.hasAttribute('data-controller')) {
+        document.getElementById('controller-status').textContent = 'Yes';
+        console.log('Controller attribute found');
+        
+        // Check if Stimulus controller is actually connected
+        if (window.Stimulus) {
+          const controller = window.Stimulus.getControllerForElementAndIdentifier(list, 'sortable');
+          if (controller) {
+            console.log('Stimulus controller is connected');
+          } else {
+            console.error('Stimulus controller not connected');
+          }
+        }
+      } else {
+        document.getElementById('controller-status').textContent = 'No';
+        console.error('Controller attribute not found');
+      }
+    }, 500);
+    
+    // Handle form submission with loading state
+    const form = document.getElementById('ballot-form');
+    const submitBtn = document.getElementById('submit-ballot');
+    
+    if (form && submitBtn) {
+      form.addEventListener('submit', function() {
+        submitBtn.disabled = true;
+        submitBtn.value = 'Submitting...';
+        form.classList.add('loading');
+      });
+    }
+  });
+  
+  function testJavaScript() {
+    alert('JavaScript is working!');
+    console.log('JavaScript test function called');
+    
+    // Test if we can access the list
+    const list = document.getElementById('candidates-list');
+    if (list) {
+      console.log('Found candidates list with', list.children.length, 'items');
+      
+      // Test manual reordering
+      const items = list.querySelectorAll('.candidate-item');
+      if (items.length > 1) {
+        const firstItem = items[0];
+        const secondItem = items[1];
+        list.insertBefore(secondItem, firstItem);
+        console.log('Manually reordered items');
+      }
+    } else {
+      console.error('Could not find candidates list');
+    }
+  }
+</script>

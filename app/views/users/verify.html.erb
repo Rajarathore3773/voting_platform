@@ -1,0 +1,22 @@
+<h1>Verify Your Phone Number</h1>
+
+<p>A verification code has been sent to <strong><%= @user.phone_number %></strong>.</p>
+
+<% if flash[:notice] %>
+  <div class="notice"><%= flash[:notice] %></div>
+<% end %>
+<% if flash[:alert] %>
+  <div class="alert"><%= flash[:alert] %></div>
+<% end %>
+
+<%= form_with url: submit_verification_user_path(@user), local: true do |form| %>
+  <div class="field">
+    <%= form.label :verification_code, "Enter Verification Code" %><br>
+    <%= form.text_field :verification_code, required: true, autofocus: true %>
+  </div>
+  <div class="actions">
+    <%= form.submit "Verify" %>
+  </div>
+<% end %>
+
+<%= button_to "Resend Code", resend_verification_user_path(@user), method: :post, form_class: 'inline' %> 

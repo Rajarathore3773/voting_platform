@@ -1,0 +1,18 @@
+<h1>Delegation Chains for <%= @election.title %></h1>
+
+<table style="width:100%; margin-top:2rem; border-collapse:collapse;">
+  <thead>
+    <tr>
+      <th>Delegator</th>
+      <th>Delegate</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @delegations.each do |delegation| %>
+      <tr style="border-bottom:1px solid #eee;">
+        <td><%= @users[delegation.delegator_id]&.email %></td>
+        <td><%= @users[delegation.delegate_id]&.email %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
