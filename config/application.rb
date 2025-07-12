@@ -23,5 +23,8 @@ module VotingPlatform
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+    
+    # Set a default secret key base if not provided
+    config.secret_key_base = ENV['SECRET_KEY_BASE'] || SecureRandom.hex(64)
   end
 end

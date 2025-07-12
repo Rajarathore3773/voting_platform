@@ -19,9 +19,6 @@ Rails.application.configure do
   # Since we're not using encrypted credentials, we don't need to require master key
   # config.require_master_key = true
 
-  # Set the secret key base from environment variable
-  config.secret_key_base = ENV['SECRET_KEY_BASE']
-
   # Enable serving static files from `public/` for Render deployment
   config.public_file_server.enabled = ENV['RAILS_SERVE_STATIC_FILES'].present?
 
